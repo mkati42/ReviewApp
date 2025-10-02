@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ async function main() {
 
   const adminEmail = 'admin@reviewboard.com';
   const adminPassword = 'admin123';
-  const hashedPassword = await bcrypt.hash(adminPassword, 12);
+  const hashedAdminPassword = await bcrypt.hash(adminPassword, 12);
 
   const adminUser = await prisma.user.upsert({
     where: { email: adminEmail },
@@ -16,7 +16,7 @@ async function main() {
     create: {
       email: adminEmail,
       name: 'Admin User',
-      password: hashedPassword,
+      password: hashedAdminPassword,
       role: 'ADMIN',
     },
   });
@@ -31,13 +31,16 @@ async function main() {
   console.log('💡 Use these credentials to access admin panel');
 
   // Create demo user for testing
+  const demoUserPassword = 'user123';
+  const hashedDemoPassword = await bcrypt.hash(demoUserPassword, 12);
+  
   const demoUser = await prisma.user.upsert({
     where: { email: 'user@reviewboard.com' },
     update: {},
     create: {
       email: 'user@reviewboard.com',
       name: 'Demo User',
-      password: await bcrypt.hash('user123', 12),
+      password: hashedDemoPassword,
       role: 'USER',
     },
   });
