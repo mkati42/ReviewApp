@@ -79,16 +79,40 @@ npx prisma generate
 # Run database migrations
 npx prisma db push
 
-# Seed the database (optional)
-npx prisma db seed
+# Seed the database with test users (recommended)
+npm run seed
 ```
+
+> 🎯 **Important**: Running `npm run seed` will create the admin and demo users with the credentials shown above.
 
 ### 5. Run Development Server
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+The development server will start and **automatically display test credentials** in the terminal:
+
+```
+🚀 ReviewBoard Development Server Starting...
+
+═══════════════════════════════════════════════════════════
+                    🔑 TEST CREDENTIALS                     
+═══════════════════════════════════════════════════════════
+
+👑 ADMIN ACCESS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 Email:    admin@reviewboard.com
+🔑 Password: admin123
+🛡️  Role:     ADMIN
+
+👤 DEMO USER ACCESS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 Email:    user@reviewboard.com
+🔑 Password: user123
+🛡️  Role:     USER
+```
+
+Open [http://localhost:3000](http://localhost:3000) and use these credentials to test the application.
 
 ## 🗄️ Database Schema
 
@@ -122,7 +146,27 @@ Works out of the box - users can register and login with email/password.
 5. Add authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
 6. Add `GOOGLE_ID` and `GOOGLE_SECRET` to your `.env.local`
 
-## 👤 User Roles & Permissions
+## � Test Credentials
+
+### 👑 Admin Account
+```
+Email:    admin@reviewboard.com
+Password: admin123
+Role:     ADMIN
+```
+**Access:** Full admin panel, all applications, user management
+
+### 👤 Demo User Account
+```
+Email:    user@reviewboard.com
+Password: user123
+Role:     USER
+```
+**Access:** Personal dashboard, own applications only
+
+> 💡 **Auto-Created**: These test users are automatically created when you run `npm run seed` or when the database is first initialized.
+
+## �👤 User Roles & Permissions
 
 ### User Role
 - Create new applications
