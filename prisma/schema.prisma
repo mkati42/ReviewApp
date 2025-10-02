@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String?
+  email         String        @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          Role          @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  applications  Application[]
+  auditLogs     AuditLog[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Application {
+  id             String            @id @default(cuid())
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title          String
+  projectType    ProjectType
+  description    String
+  
+  technicalDesc  String            @db.Text
+  duration       Int
+  cost           Float
+  documentLink   String?
+  
+  riskScore      Int               @default(0)
+  
+  status         ApplicationStatus @default(PENDING)
+  reviewNote     String?
+  
+  auditLogs      AuditLog[]
+  
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([riskScore])
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ProjectType {
+  WEB_DEVELOPMENT
+  MOBILE_APP
+  DATA_ANALYSIS
+  INFRASTRUCTURE
+  SECURITY
+  RESEARCH
+  OTHER
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model AuditLog {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  
+  action        AuditAction
+  fieldName     String?
+  oldValue      String?
+  newValue      String?
+  
+  createdAt     DateTime    @default(now())
+  
+  @@index([applicationId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+enum AuditAction {
+  CREATED
+  STATUS_CHANGED
+  REVIEW_NOTE_ADDED
+  UPDATED
+}
